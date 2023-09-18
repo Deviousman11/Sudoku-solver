@@ -1,0 +1,114 @@
+/**
+ * Solves a Sudoku board.
+ *
+ * @param {number[][]} board - The Sudoku board represented as a 2D array.
+ * @returns {boolean} True if the Sudoku board is solvable, false otherwise.
+ */
+function solveSudoku(board) {
+    // Helper function to check if a number is valid in a given row
+    function isValidRow(row, num) {
+        for (let col = 0; col < 9; col++) {
+            if (board[row][col] === num) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Helper function to check if a number is valid in a given column
+    function isValidColumn(col, num) {
+        for (let row = 0; row < 9; row++) {
+            if (board[row][col] === num) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Helper function to check if a number is valid in a given 3x3 subgrid
+    function isValidSubgrid(startRow, startCol, num) {
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 3; col++) {
+                if (board[startRow + row][startCol + col] === num) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // Helper function to check if a number is valid at a given position
+    function isValidPosition(row, col, num) {
+        return (
+            isValidRow(row, num) &&
+            isValidColumn(col, num) &&
+            isValidSubgrid(row - (row % 3), col - (col % 3), num)
+        );
+    }
+
+    // Helper function to find an empty position on the board
+    function findEmptyPosition() {
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                if (board[row][col] === 0) {
+                    return [row, col];
+                }
+            }
+        }
+        return null;
+    }
+
+    // Recursive function to solve the Sudoku board
+    function solve() {
+        const emptyPosition = findEmptyPosition();
+
+        // If there are no more empty positions, the board is solved
+        if (emptyPosition === null) {
+            return true;
+        }
+
+        const [row, col] = emptyPosition;
+
+        // Try numbers from 1 to 9
+        for (let num = 1; num <= 9; num++) {
+            if (isValidPosition(row, col, num)) {
+                board[row][col] = num;
+
+                // Recursively solve the board
+                if (solve()) {
+                    return true;
+                }
+
+                // If the current number doesn't lead to a solution, backtrack
+                board[row][col] = 0;
+            }
+        }
+
+        // If no number leads to a solution, the board is unsolvable
+        return false;
+    }
+
+    // Call the solve function to solve the Sudoku board
+    return solve();
+}
+
+// Usage Example for solveSudoku
+
+const sudokuBoard = [
+    [5, 3, 0, 0, 7, 0, 0, 0, 0],
+    [6, 0, 0, 1, 9, 5, 0, 0, 0],
+    [0, 9, 8, 0, 0, 0, 0, 6, 0],
+    [8, 0, 0, 0, 6, 0, 0, 0, 3],
+    [4, 0, 0, 8, 0, 3, 0, 0, 1],
+    [7, 0, 0, 0, 2, 0, 0, 0, 6],
+    [0, 6, 0, 0, 0, 0, 2, 8, 0],
+    [0, 0, 0, 4, 1, 9, 0, 0, 5],
+    [0, 0, 0, 0, 8, 0, 0, 7, 9]
+];
+
+if (solveSudoku(sudokuBoard)) {
+    console.log("Sudoku board is solvable.");
+    console.log(sudokuBoard);
+} else {
+    console.log("Sudoku board is unsolvable.");
+}
